@@ -15,8 +15,9 @@ import NodeInfo from './NodeInfo';
 import TemplateModule from './TemplateModule';
 import Transfer from './Transfer';
 import Upgrade from './Upgrade';
+import PoeModule from './PoeModule';
 
-function Main () {
+function Main() {
   const [accountAddress, setAccountAddress] = useState(null);
   const { apiState, keyring, keyringState } = useSubstrate();
   const accountPair =
@@ -68,6 +69,10 @@ function Main () {
           <Grid.Row>
             <TemplateModule accountPair={accountPair} />
           </Grid.Row>
+
+          <Grid.Row>
+            <PoeModule accountPair={accountPair} />
+          </Grid.Row>
         </Grid>
         <DeveloperConsole />
       </Container>
@@ -75,7 +80,7 @@ function Main () {
   );
 }
 
-export default function App () {
+export default function App() {
   return (
     <SubstrateContextProvider>
       <Main />

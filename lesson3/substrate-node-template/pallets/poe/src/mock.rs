@@ -2,7 +2,7 @@
 
 use crate::{Module, Trait};
 use sp_core::H256;
-use frame_support::{impl_outer_origin, parameter_types, weights::Weight};
+use frame_support::{impl_outer_origin, parameter_types, weights::Weight, impl_outer_event};
 use sp_runtime::{
 	traits::{BlakeTwo256, IdentityLookup}, testing::Header, Perbill,
 };
@@ -49,17 +49,45 @@ impl system::Trait for Test {
 	type OnKilledAccount = ();
 }
 
-parameter_types! {
-	pub const MaxClaimLength: u32 = 6;
+// mod generic_event {
+// 	pub use crate::Event;
+// }
+// impl_outer_event! {
+// 	pub enum TestEvent for Test {
+// 		generic_event<T>,
+// 		system<T>,
+// 	}
+// }
+
+parameter_types!{
+	pub const MaxLenth:usize = 6;
+	pub const MinLenth:u32 = 1;
 }
 impl Trait for Test {
 	type Event = ();
-	type MaxClaimLength = MaxClaimLength;
+	//type Event = TestEvent;
+	type MaxLenthp = MaxLenth;
+	type MinLenthp = MinLenth;
+	
 }
 pub type PoeModule = Module<Test>;
+//pub type System = system::Module<Test>;
 
 // This function basically just builds a genesis storage key/value store according to
 // our desired mockup.
 pub fn new_test_ext() -> sp_io::TestExternalities {
 	system::GenesisConfig::default().build_storage::<Test>().unwrap().into()
 }
+
+// pub struct ExtBuilder;
+
+// impl ExtBuilder {
+// 	pub fn build() -> sp_io::TestExternalities {
+// 		let storage = system::GenesisConfig::default()
+// 			.build_storage::<Test>()
+// 			.unwrap();
+// 		let mut ext = sp_io::TestExternalities::from(storage);
+// 		ext.execute_with(|| System::set_block_number(1));
+// 		ext
+// 	}
+// }

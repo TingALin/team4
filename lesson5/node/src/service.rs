@@ -1,5 +1,5 @@
 //! Service and ServiceFactory implementation. Specialized wrapper over substrate service.
-
+//service.rs提供了构造Substrate服务的帮助方法，
 use std::sync::Arc;
 use std::time::Duration;
 use sc_client_api::ExecutorProvider;
@@ -13,7 +13,8 @@ use sp_consensus_aura::sr25519::{AuthorityPair as AuraPair};
 use sc_finality_grandpa::{
 	FinalityProofProvider as GrandpaFinalityProofProvider, StorageAndProofProvider, SharedVoterState,
 };
-
+//使用 native_executor_instance 宏定义了一个结构体 Executor ，
+//并且实现了 NativeExecutionDispatch 接口，即可以通过函数名称来调用该函数；
 // Our native executor instance.
 native_executor_instance!(
 	pub Executor,
@@ -25,6 +26,24 @@ native_executor_instance!(
 ///
 /// Use this macro if you don't actually need the full service, but just the builder in order to
 /// be able to perform chain operations.
+/*
+new_full_start 宏构建了一个ServiceBuilder，用来构造全节点服务，过程如下：
+调用 with_select_chain 设置链的生成策略，也就是当链出现分叉的时候，选择哪个链继续工作，这里使用最长链原则；
+调用 with_transaction_pool 设置交易池类型，这里使用BasicPool；
+调用 with_import_queue 设置了导入区块所需的队列，这里使用BasicQueue，可以顺序地导入block。
+使用 new_full 构建一个全节点服务，
+使用 new_full_start 宏构建了一个ServiceBuilder；
+调用 with_finality_proof_provider 设置使用何种策略提供最终性验证；
+调用 build 构建真正的 Substrate Service ；
+如果是验证人并且不是哨兵模式，调用service的 spawn_essential_task 函数，启动用于生成区块的后台任务，使用的是Aura算法；
+如果GRANDPA功能没有关闭，调用 spawn_essential_task 开启后台运行的投票任务。
+使用 new_light 构建一个轻节点服务，
+调用 with_select_chain 设置跟随最长链；
+调用 with_transaction_pool 设置BasicPool交易池类型;
+调用 with_import_queue_and_fprb 设置区块导入时所用的队列，以及用来构建最终性验证请求的 FinalityProofRequestBuilder ；
+调用 with_finality_proof_provider 设置使用何种策略提供最终性验证；
+调用 build 构建真正的 Substrate Service 。
+*/
 macro_rules! new_full_start {
 	($config:expr) => {{
 		use std::sync::Arc;

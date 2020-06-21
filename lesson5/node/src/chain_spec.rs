@@ -7,7 +7,13 @@ use sp_consensus_aura::sr25519::AuthorityId as AuraId;
 use sp_finality_grandpa::AuthorityId as GrandpaId;
 use sp_runtime::traits::{Verify, IdentifyAccount};
 use sc_service::ChainType;
+/*chain_spec.rs构造了 ChainSpec ，它定义了链的可用配置，用来构造初始区块，
 
+node-template提供了两种模式，通过命令行参数 --dev 指定开发者网络（Development），只有Alice是验证人； 
+--local 指定本地测试网络（LocalTestnet），Alice和Bob是验证人；
+调用 ChainSpec::from_genesis 创建硬编码的ChainSpec；
+定义了 testnet_genesis 函数，传入验证人列表、root账户、存有余额的账户列表，构造出GenesisConfig。
+*/
 // Note this is the URL for the telemetry server
 //const STAGING_TELEMETRY_URL: &str = "wss://telemetry.polkadot.io/submit/";
 

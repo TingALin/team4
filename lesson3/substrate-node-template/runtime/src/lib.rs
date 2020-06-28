@@ -260,12 +260,15 @@ impl template::Trait for Runtime {
 parameter_types!{
 	pub const MaxLenth:usize = 256;
 	pub const MinLenth:u32 = 1;
+	pub const MaxNoteLength: u32 = 256;
 }
 impl poe::Trait for Runtime {
 	type Event = Event;
 	type MaxLenthp = MaxLenth;
 	type MinLenthp = MinLenth;
 	type Currency = Balances;
+	type MaxNoteLength = MaxNoteLength;
+	//type Currency = balances::Module<Runtime>;
 }
 
 construct_runtime!(
@@ -424,4 +427,3 @@ impl_runtime_apis! {
 		}
 	}
 }
-

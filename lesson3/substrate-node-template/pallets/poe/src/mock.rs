@@ -7,7 +7,7 @@ use sp_runtime::{
 	traits::{BlakeTwo256, IdentityLookup}, testing::Header, Perbill,
 };
 use frame_system as system;
-
+//为runtime构造了一个Origin类型，用来标识交易的来源；
 impl_outer_origin! {
 	pub enum Origin for Test {}
 }
@@ -16,7 +16,9 @@ impl_outer_origin! {
 // first constructing a configuration type (`Test`) which `impl`s each of the
 // configuration traits of pallets we want to use.
 #[derive(Clone, Eq, PartialEq)]
-pub struct Test;
+pub struct Test;//创建了一个测试用的runtime结构体；
+
+//生成一些后面功能模块所需的满足 Get 接口的数据类型；
 parameter_types! {
 	pub const BlockHashCount: u64 = 250;
 	pub const MaximumBlockWeight: Weight = 1024;
@@ -63,6 +65,7 @@ parameter_types!{
 	pub const MaxLenth:usize = 6;
 	pub const MinLenth:u32 = 1;
 }
+//为runtime实现各个功能模块接口，这里使用了大量的 () 来mock不关心的数据类型；
 impl Trait for Test {
 	type Event = ();
 	//type Event = TestEvent;

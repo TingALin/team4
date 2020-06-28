@@ -2,9 +2,11 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 // `construct_runtime!` does a lot of recursion and requires us to increase the limit to 256.
+//用来设置编译期间可能出现无限递归操作（如宏展开）的最大阈值，默认是128，这里我们提高到256，来满足 consturct_runtime 宏的需求
 #![recursion_limit="256"]
 
 // Make the WASM binary available.
+//使用std featue编译时，将生成的Wasm二进制内容通过常量的方式引入到当前runtime代码中
 #[cfg(feature = "std")]
 include!(concat!(env!("OUT_DIR"), "/wasm_binary.rs"));
 
@@ -42,7 +44,7 @@ pub use frame_support::{
 
 /// Importing a template pallet
 pub use template;
-
+//给runtime所需的基础类型起别名，原则是和模块中的associate type名称一致，如 pub type BlockNumber = u32 ；
 /// An index to a block.
 pub type BlockNumber = u32;
 
@@ -73,6 +75,7 @@ pub type DigestItem = generic::DigestItem<Hash>;
 /// the specifics of the runtime. They can then be made to be agnostic over specific formats
 /// of data like extrinsics, allowing for them to continue syncing the network through upgrades
 /// to even the core data structures.
+//opaque模块封装了一些用于CLI初始化时的类型，这些类型和runtime的具体信息
 pub mod opaque {
 	use super::*;
 
@@ -94,16 +97,23 @@ pub mod opaque {
 }
 
 /// This runtime version.
+/*指定了runtime版本信息，当runtime协议修改之后，需要将 spec_version 加1； 
+impl_version 是协议的实现版本，用来表示节点运行的代码是不同的，
+仅当非共识相关的优化发生时才可能修改这个值； 
+RUNTIME_API_VERSIONS 包含已实现的runtime api的所有版本信息，
+由 impl_runtime_apis 宏生成，后面会进一步介绍。
+*/
 pub const VERSION: RuntimeVersion = RuntimeVersion {
 	spec_name: create_runtime_str!("node-template"),
 	impl_name: create_runtime_str!("node-template"),
-	authoring_version: 1,
-	spec_version: 1,
+	authoring_version: 1, //更多是共识的版本，一搬不用调，如由aura转为babe就要
+	spec_version: 1,//每次runtime升级都要调,不一定要1
 	impl_version: 1,
 	apis: RUNTIME_API_VERSIONS,
-	transaction_version: 1,
+	transaction_version: 1,//更多给硬件钱包使用，如果数字变了，会被钱包拒绝签名，如果sepc-version不一样，这里一样也可以
 };
 
+//每个区块是2秒
 pub const MILLISECS_PER_BLOCK: u64 = 2000;
 
 pub const SLOT_DURATION: u64 = MILLISECS_PER_BLOCK;
@@ -114,6 +124,8 @@ pub const HOURS: BlockNumber = MINUTES * 60;
 pub const DAYS: BlockNumber = HOURS * 24;
 
 /// The version information used to identify this runtime when compiled natively.
+//指定当前的NativeVersion，在执行交易时会把NativeVersion和链上的RuntimeVersion进行比较，
+//如果不一致，通常情况下会使用Wasm执行交易
 #[cfg(feature = "std")]
 pub fn native_version() -> NativeVersion {
 	NativeVersion {
@@ -121,7 +133,7 @@ pub fn native_version() -> NativeVersion {
 		can_author_with: Default::default(),
 	}
 }
-
+//生成一些后面功能模块所需的满足 Get 接口的数据类型
 parameter_types! {
 	pub const BlockHashCount: BlockNumber = 2400;
 	/// We allow for 2 seconds of compute with a 6 second average block time.
@@ -251,7 +263,7 @@ impl sudo::Trait for Runtime {
 	type Event = Event;
 	type Call = Call;
 }
-
+//为runtime的实现各个功能模块的接口，runtime由 construct_runtime 宏生成，
 /// Used for the module template in `./template.rs`
 impl template::Trait for Runtime {
 	type Event = Event;
@@ -278,7 +290,11 @@ construct_runtime!(
 		// Used for the module template in `./template.rs`
 		TemplateModule: template::{Module, Call, Storage, Event<T>},
 		// Substrate Kitties module
-		Kitties: pallet_kitties::{Module, Storage, Call},
+		//根据名称（如 TemplateModule ）和所用的模块内的组件（
+		//如 template::{Module, Call, Storage, Event<T>} ）来构造runtime，
+		//从而使模块中的信息通过metadata暴露出来，并且使该模块在runtime中可用。
+		//构造时，是按照顺序加载初始存储的，所以当B模块依赖A模块时，应当将A模块放在B之前。
+		Kitties: pallet_kitties::{Module, Storage, Call, Event<T>},
 	}
 );
 
@@ -308,7 +324,7 @@ pub type UncheckedExtrinsic = generic::UncheckedExtrinsic<Address, Call, Signatu
 pub type CheckedExtrinsic = generic::CheckedExtrinsic<AccountId, Call, SignedExtra>;
 /// Executive: handles dispatch to the various modules.
 pub type Executive = frame_executive::Executive<Runtime, Block, system::ChainContext<Runtime>, Runtime, AllModules>;
-
+//实现runtime api定义的接口，这些接口需要通过 decl_runtime_apis 宏进行定义。
 impl_runtime_apis! {
 	impl sp_api::Core<Block> for Runtime {
 		fn version() -> RuntimeVersion {

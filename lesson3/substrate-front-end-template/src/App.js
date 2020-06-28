@@ -16,7 +16,7 @@ import TemplateModule from './TemplateModule';
 import Transfer from './Transfer';
 import Upgrade from './Upgrade';
 import PoeModule from './PoeModule';
-
+// eslint-disable-next-line
 function Main() {
   const [accountAddress, setAccountAddress] = useState(null);
   const { apiState, keyring, keyringState } = useSubstrate();
@@ -69,7 +69,6 @@ function Main() {
           <Grid.Row>
             <TemplateModule accountPair={accountPair} />
           </Grid.Row>
-
           <Grid.Row>
             <PoeModule accountPair={accountPair} />
           </Grid.Row>
@@ -79,7 +78,7 @@ function Main() {
     </div>
   );
 }
-
+// eslint-disable-next-line
 export default function App() {
   return (
     <SubstrateContextProvider>
